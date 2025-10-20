@@ -1,0 +1,18 @@
+services:
+  # Postgres
+  postgres:
+    container_name: postgres
+    image: bitnami/postgresql:latest
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: "workdb123"
+      POSTGRES_USER: "devapi"
+      POSTGRES_DB: "devapi"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data: {}
+
