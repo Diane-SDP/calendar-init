@@ -3,6 +3,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
+import { EventsModule } from './events/events.module';
+import * as events from 'node:events';
 
 @Module({
   imports: [
@@ -16,12 +18,13 @@ import { User } from './users/entities/user.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
-        entities: [User],
+        entities: [User, events],
         synchronize: true,
       }),
       inject: [ConfigService],
     }),
     UsersModule,
+    EventsModule,
   ],
   controllers: [],
   providers: [],
