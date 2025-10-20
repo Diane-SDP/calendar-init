@@ -4,8 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
 import { EventsModule } from './events/events.module';
-import * as events from 'node:events';
-
+import { Event } from './events/entities/event.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -18,7 +17,7 @@ import * as events from 'node:events';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
-        entities: [User, events],
+        entities: [User, Event],
         synchronize: true,
       }),
       inject: [ConfigService],
