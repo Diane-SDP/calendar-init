@@ -19,17 +19,6 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    // Vérifier si l'utilisateur existe déjà
-    if (
-      !createUserDto ||
-      !createUserDto.email ||
-      !createUserDto.username ||
-      !createUserDto.password
-    ) {
-      throw new BadRequestException(
-        'Missing required fields: username, email, and password are required',
-      );
-    }
     const existingUser = await this.usersRepository.findOne({
       where: [
         { email: createUserDto.email },
