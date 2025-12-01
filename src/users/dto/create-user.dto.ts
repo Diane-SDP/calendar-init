@@ -6,6 +6,7 @@ import {
   MinLength,
   IsNotEmpty,
 } from 'class-validator';
+import { Role } from '../../common/enums/role.enum';
 
 export class CreateUserDto {
   @IsString()
@@ -19,10 +20,10 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
-  @MinLength(6)
+  @MinLength(8)
   password!: string;
 
   @IsOptional()
-  @IsEnum(['Employee', 'Admin', 'ProjectManager'])
-  role?: 'Employee' | 'Admin' | 'ProjectManager';
+  @IsEnum(Role)
+  role?: Role;
 }

@@ -338,4 +338,4 @@ id!: string; //au format uuidv4
 - Le projet se faisant avec une base de type postgres, vous devez utiliser TypeOrm afin de traiter vos données en base.
 - Le paquet dayjs est fourni, n'hésitez pas à l'utiliser pour la gestion des dates.
 - Il est fortement recommandé d'utiliser le [CLI de NestJS](https://docs.nestjs.com/cli/overview) pour générer vos fichiers de code source.
-- Vous pourrez tester votre API via Postman. Cependant, un [swagger](http://localhost:3000/docs) vous est fourni pour vous faciliter les choses. 
+- Vous pourrez tester votre API via Postman. Cependant, un [swagger](http://localhost:3000/api) vous est fourni pour vous faciliter les choses. 
