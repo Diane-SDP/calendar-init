@@ -199,6 +199,92 @@ export class EventsService {
     return this.updateStatus(id, EventStatus.Declined, approver);
   }
 
+  async cancelEvent(id: string, actor: User) {
+    const event = await this.findOne(id);
+    const today = dayjs().startOf('day');
+    const eventDate = dayjs(event.date);
+
+    // Only owner or privileged roles can touch the event
+    const isOwner = actor.id === event.userId;
+    const isAdmin = actor.role === Role.Admin;
+    const isProjectManager = actor.role === Role.ProjectManager;
+
+    if (!isOwner && !isAdmin && !isProjectManager) {
+      throw new UnauthorizedException(
+        'You are not allowed to cancel this event',
+      );
+    }
+
+    if (event.eventType === EventType.RemoteWork) {
+      if (eventDate.isBefore(today)) {
+        throw new BadRequestException(
+          'You cannot cancel a remote work that is already in the past',
+        );
+      }
+
+      // For remote work, allow owner, admin or project manager with the above date rule
+      await this.eventsRepository.remove(event);
+      return event;
+    }
+
+    if (event.eventType === EventType.PaidLeave) {
+      // Admin can cancel any paid leave at any time
+      if (isAdmin) {
+        await this.eventsRepository.remove(event);
+        return event;
+      }
+
+      // For project managers, ensure the paid leave belongs to one of their projects
+      if (isProjectManager) {
+        const assignment = await this.getAssignmentForDate(
+          event.userId,
+          event.date,
+        );
+
+        if (
+          !assignment ||
+          assignment.project.referringEmployeeId !== actor.id
+        ) {
+          throw new UnauthorizedException(
+            'Project managers can only cancel paid leaves for their projects',
+          );
+        }
+
+        await this.eventsRepository.remove(event);
+        return event;
+      }
+
+      // From here, we only handle the employee cancelling their own paid leave
+      if (!isOwner) {
+        throw new UnauthorizedException(
+          'You can only cancel your own paid leaves',
+        );
+      }
+
+      if (eventDate.isBefore(today)) {
+        throw new BadRequestException(
+          'You cannot cancel a paid leave that is already in the past',
+        );
+      }
+
+      // If the paid leave is accepted, enforce the 1‑week rule
+      if (event.eventStatus === EventStatus.Accepted) {
+        const diffInDays = eventDate.diff(today, 'day');
+        if (diffInDays < 7) {
+          throw new BadRequestException(
+            'You can only cancel an accepted paid leave up to one week before. Please contact an admin or your project manager.',
+          );
+        }
+      }
+
+      await this.eventsRepository.remove(event);
+      return event;
+    }
+
+    // Fallback for potential future event types
+    throw new BadRequestException('This type of event cannot be cancelled');
+  }
+
   async findEventsForUserInMonth(userId: string, month: number, year: number) {
     const start = dayjs().year(year).month(month - 1).startOf('month');
     const end = start.endOf('month');

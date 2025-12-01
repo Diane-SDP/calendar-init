@@ -126,5 +126,33 @@ export class ProjectUsersService {
 
     return assignment;
   }
+
+  async remove(id: string, currentUser: User) {
+    this.ensureHasAccess(currentUser);
+
+    const assignment = await this.projectUsersRepository.findOne({
+      where: { id },
+    });
+
+    if (!assignment) {
+      throw new NotFoundException('Assignment not found');
+    }
+
+    // Project managers can only manage assignments on their own projects
+    if (currentUser.role === Role.ProjectManager) {
+      const project = await this.projectsRepository.findOne({
+        where: { id: assignment.projectId },
+      });
+
+      if (!project || project.referringEmployeeId !== currentUser.id) {
+        throw new UnauthorizedException(
+          'Project managers can only remove users from their own projects',
+        );
+      }
+    }
+
+    await this.projectUsersRepository.remove(assignment);
+    return assignment;
+  }
 }
 

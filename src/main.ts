@@ -13,10 +13,20 @@ async function bootstrap() {
     }),
   );
   const config = new DocumentBuilder()
-    .setTitle('Swagger')
-    .addBearerAuth()
-    .setDescription('The API description')
-    .setVersion('1.0')
+    .setTitle('Calendar API')
+    .setDescription(
+      'REST API used to manage users, projects, assignments and events for the Ynov calendar.',
+    )
+    .setVersion('1.0.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'Paste the JWT obtained from the login endpoint.',
+      },
+      'access-token',
+    )
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
