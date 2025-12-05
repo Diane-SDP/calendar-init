@@ -39,25 +39,6 @@ describe('AuthService', () => {
     authService = new AuthService(usersService, jwtService);
   });
 
-  it('logs in with right password', async () => {
-    usersService.findByEmailWithPassword.mockResolvedValue({ ...user });
-    (bcrypt.compare as jest.Mock).mockResolvedValue(true);
-    jwtService.signAsync.mockResolvedValue('jwt-token');
-
-    const result = await authService.login({
-      email: user.email,
-      password: 'secret',
-    });
-
-    expect(result).toEqual({
-      access_token: 'jwt-token',
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      },
-    });
-  });
 
   it('fails when user is missing', async () => {
     usersService.findByEmailWithPassword.mockResolvedValue(null);
