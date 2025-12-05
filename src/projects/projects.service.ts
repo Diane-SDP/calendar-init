@@ -26,10 +26,6 @@ export class ProjectsService {
   ) {}
 
   async create(createProjectDto: CreateProjectDto, currentUser: User) {
-    if (currentUser.role !== Role.Admin) {
-      throw new UnauthorizedException('Only admins can create projects');
-    }
-
     const referringEmployee = await this.usersService.findOne(
       createProjectDto.referringEmployeeId,
     );
@@ -62,17 +58,19 @@ export class ProjectsService {
   async findAllForUser(user: User) {
     if (user.role === Role.Admin || user.role === Role.ProjectManager) {
       return this.projectsRepository.find({
+        where: { archived: false },
         order: { createdAt: 'DESC' },
       });
     }
 
     const assignments = await this.projectUsersRepository.find({
       where: { userId: user.id },
+      relations: ['project'],
     });
 
     const uniqueProjects = new Map<string, Project>();
     assignments.forEach((assignment) => {
-      if (assignment.project) {
+      if (assignment.project && !assignment.project.archived) {
         uniqueProjects.set(assignment.project.id, assignment.project);
       }
     });
@@ -85,7 +83,7 @@ export class ProjectsService {
       where: { id: projectId },
     });
 
-    if (!project) {
+    if (!project || project.archived) {
       throw new NotFoundException('Project not found');
     }
 
@@ -113,7 +111,7 @@ export class ProjectsService {
       where: { id: projectId },
     });
 
-    if (!project) {
+    if (!project || project.archived) {
       throw new NotFoundException('Project not found');
     }
 
@@ -123,8 +121,6 @@ export class ProjectsService {
           'Project managers can only update their own projects',
         );
       }
-    } else if (currentUser.role !== Role.Admin) {
-      throw new UnauthorizedException('Insufficient permissions');
     }
 
     if (updateProjectDto.name) {
@@ -165,5 +161,17 @@ export class ProjectsService {
 
     return this.projectsRepository.save(project);
   }
-}
 
+  async archive(projectId: string) {
+    const project = await this.projectsRepository.findOne({
+      where: { id: projectId },
+    });
+
+    if (!project) {
+      throw new NotFoundException('Project not found');
+    }
+
+    project.archived = true;
+    return this.projectsRepository.save(project);
+  }
+}

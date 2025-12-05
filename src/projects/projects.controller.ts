@@ -61,6 +61,17 @@ export class ProjectsController {
     return this.projectsService.create(createProjectDto, user);
   }
 
+  @Patch(':id/archive')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
+  @ApiOperation({ summary: 'Archive a project (admin only).' })
+  @ApiResponse({ status: 200, description: 'Project archived.' })
+  async archive(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ) {
+    return this.projectsService.archive(id);
+  }
+
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Admin, Role.ProjectManager)

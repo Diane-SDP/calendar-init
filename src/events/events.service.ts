@@ -64,9 +64,7 @@ export class EventsService {
     });
 
     if (remoteEvents >= 2) {
-      throw new BadRequestException(
-        'Remote work quota exceeded for this week',
-      );
+      throw new BadRequestException('Remote work quota exceeded for this week');
     }
   }
 
@@ -132,11 +130,7 @@ export class EventsService {
       .getOne();
   }
 
-  private async updateStatus(
-    id: string,
-    status: EventStatus,
-    approver: User,
-  ) {
+  private async updateStatus(id: string, status: EventStatus, approver: User) {
     const event = await this.findOne(id);
 
     if (event.eventType !== EventType.PaidLeave) {
@@ -174,28 +168,10 @@ export class EventsService {
   }
 
   async validateEvent(id: string, approver: User) {
-    if (
-      approver.role !== Role.Admin &&
-      approver.role !== Role.ProjectManager
-    ) {
-      throw new UnauthorizedException(
-        'Only admins or project managers can validate events',
-      );
-    }
-
     return this.updateStatus(id, EventStatus.Accepted, approver);
   }
 
   async declineEvent(id: string, approver: User) {
-    if (
-      approver.role !== Role.Admin &&
-      approver.role !== Role.ProjectManager
-    ) {
-      throw new UnauthorizedException(
-        'Only admins or project managers can decline events',
-      );
-    }
-
     return this.updateStatus(id, EventStatus.Declined, approver);
   }
 
@@ -286,7 +262,10 @@ export class EventsService {
   }
 
   async findEventsForUserInMonth(userId: string, month: number, year: number) {
-    const start = dayjs().year(year).month(month - 1).startOf('month');
+    const start = dayjs()
+      .year(year)
+      .month(month - 1)
+      .startOf('month');
     const end = start.endOf('month');
 
     return this.eventsRepository.find({
@@ -298,7 +277,10 @@ export class EventsService {
   }
 
   async findAcceptedPaidLeavesInMonth(year: number, month: number) {
-    const start = dayjs().year(year).month(month - 1).startOf('month');
+    const start = dayjs()
+      .year(year)
+      .month(month - 1)
+      .startOf('month');
     const end = start.endOf('month');
 
     return this.eventsRepository.find({
@@ -310,4 +292,3 @@ export class EventsService {
     });
   }
 }
-

@@ -22,6 +22,9 @@ export class Project {
   @Column({ type: 'text', nullable: true })
   description?: string;
 
+  @Column({ default: false })
+  archived!: boolean;
+
   @Column({ name: 'referring_employee_id' })
   referringEmployeeId!: string;
 

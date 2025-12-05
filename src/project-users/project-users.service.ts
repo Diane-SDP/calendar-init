@@ -51,7 +51,7 @@ export class ProjectUsersService {
       where: { id: dto.projectId },
     });
 
-    if (!project) {
+    if (!project || project.archived) {
       throw new NotFoundException('Project not found');
     }
 
@@ -97,21 +97,30 @@ export class ProjectUsersService {
   }
 
   async findAllForUser(currentUser: User) {
+    let assignments: ProjectUser[];
+
     if (currentUser.role === Role.Employee) {
-      return this.projectUsersRepository.find({
+      assignments = await this.projectUsersRepository.find({
         where: { userId: currentUser.id },
+        relations: ['project'],
+      });
+    } else {
+      assignments = await this.projectUsersRepository.find({
+        relations: ['project'],
       });
     }
 
-    return this.projectUsersRepository.find();
+    // Filter out assignments for archived projects
+    return assignments.filter((assignment) => !assignment.project?.archived);
   }
 
   async findOneForUser(id: string, currentUser: User) {
     const assignment = await this.projectUsersRepository.findOne({
       where: { id },
+      relations: ['project'],
     });
 
-    if (!assignment) {
+    if (!assignment || assignment.project?.archived) {
       throw new NotFoundException('Assignment not found');
     }
 
@@ -132,9 +141,10 @@ export class ProjectUsersService {
 
     const assignment = await this.projectUsersRepository.findOne({
       where: { id },
+      relations: ['project'],
     });
 
-    if (!assignment) {
+    if (!assignment || assignment.project?.archived) {
       throw new NotFoundException('Assignment not found');
     }
 
@@ -155,4 +165,3 @@ export class ProjectUsersService {
     return assignment;
   }
 }
-
