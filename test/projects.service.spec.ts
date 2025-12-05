@@ -5,12 +5,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { ProjectsService } from './projects.service';
-import { Project } from './entities/project.entity';
-import { UsersService } from '../users/users.service';
-import { Role } from '../common/enums/role.enum';
-import { User } from '../users/entities/user.entity';
-import { ProjectUser } from '../project-users/entities/project-user.entity';
+import { ProjectsService } from '../src/projects/projects.service';
+import { Project } from '../src/projects/entities/project.entity';
+import { UsersService } from '../src/users/users.service';
+import { Role } from '../src/common/enums/role.enum';
+import { User } from '../src/users/entities/user.entity';
+import { ProjectUser } from '../src/project-users/entities/project-user.entity';
 
 describe('ProjectsService', () => {
   let service: ProjectsService;

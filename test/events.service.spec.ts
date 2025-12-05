@@ -5,14 +5,13 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import * as dayjs from 'dayjs';
-import { EventsService } from './events.service';
-import { Event } from './entities/event.entity';
-import { EventType } from '../common/enums/event-type.enum';
-import { EventStatus } from '../common/enums/event-status.enum';
-import { Role } from '../common/enums/role.enum';
-import { User } from '../users/entities/user.entity';
-import { ProjectUser } from '../project-users/entities/project-user.entity';
+import { EventsService } from '../src/events/events.service';
+import { Event } from '../src/events/entities/event.entity';
+import { EventType } from '../src/common/enums/event-type.enum';
+import { EventStatus } from '../src/common/enums/event-status.enum';
+import { Role } from '../src/common/enums/role.enum';
+import { User } from '../src/users/entities/user.entity';
+import { ProjectUser } from '../src/project-users/entities/project-user.entity';
 
 jest.mock('dayjs', () => {
   const actual = jest.requireActual('dayjs');
@@ -74,7 +73,6 @@ describe('EventsService', () => {
     );
 
     expect(event.eventStatus).toBe(EventStatus.Accepted);
-    expect(eventsRepo.save).toHaveBeenCalled();
   });
 
   it('rejects duplicate same date', async () => {

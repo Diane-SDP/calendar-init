@@ -1,9 +1,9 @@
 import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { AuthService } from './auth.service';
-import { UsersService } from '../users/users.service';
-import { Role } from '../common/enums/role.enum';
+import { AuthService } from '../src/auth/auth.service';
+import { UsersService } from '../src/users/users.service';
+import { Role } from '../src/common/enums/role.enum';
 
 jest.mock('bcrypt', () => ({
   compare: jest.fn(),
@@ -39,6 +39,19 @@ describe('AuthService', () => {
     authService = new AuthService(usersService, jwtService);
   });
 
+  it('logs in with right password', async () => {
+    usersService.findByEmailWithPassword.mockResolvedValue({ ...user });
+    (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+    jwtService.signAsync.mockResolvedValue('jwt-token');
+
+    const result = await authService.login({
+      email: user.email,
+      password: 'secret',
+    });
+
+    expect(result.access_token).toBe('jwt-token');
+    expect(result.user.id).toBe(user.id);
+  });
 
   it('fails when user is missing', async () => {
     usersService.findByEmailWithPassword.mockResolvedValue(null);
