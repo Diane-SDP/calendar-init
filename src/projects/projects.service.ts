@@ -26,6 +26,9 @@ export class ProjectsService {
   ) {}
 
   async create(createProjectDto: CreateProjectDto, currentUser: User) {
+    if (currentUser.role !== Role.Admin) {
+      throw new UnauthorizedException('Only admins can create projects');
+    }
     const referringEmployee = await this.usersService.findOne(
       createProjectDto.referringEmployeeId,
     );
@@ -121,6 +124,8 @@ export class ProjectsService {
           'Project managers can only update their own projects',
         );
       }
+    } else if (currentUser.role !== Role.Admin) {
+      throw new UnauthorizedException('Insufficient permissions');
     }
 
     if (updateProjectDto.name) {

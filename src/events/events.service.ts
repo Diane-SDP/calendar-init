@@ -168,10 +168,20 @@ export class EventsService {
   }
 
   async validateEvent(id: string, approver: User) {
+    if (approver.role !== Role.Admin && approver.role !== Role.ProjectManager) {
+      throw new UnauthorizedException(
+        'Only admins or project managers can validate events',
+      );
+    }
     return this.updateStatus(id, EventStatus.Accepted, approver);
   }
 
   async declineEvent(id: string, approver: User) {
+    if (approver.role !== Role.Admin && approver.role !== Role.ProjectManager) {
+      throw new UnauthorizedException(
+        'Only admins or project managers can decline events',
+      );
+    }
     return this.updateStatus(id, EventStatus.Declined, approver);
   }
 
